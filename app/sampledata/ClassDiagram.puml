@@ -1,0 +1,129 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package "app.java.com.cleanup.todoc.model"{
+    Task *- TaskAZComparator
+    Task *-- TaskZAComparator
+    Task *-- TaskRecentComparator
+    Task *-- TaskOldComparator
+    Task <.up. Project
+}
+package "app.java.com.cleanup.todoc.ui"{
+    MainActivity *-- SortMethod
+    TasksAdapter *-- DeleteTaskListener
+    TasksAdapter *-- TaskViewHolder
+    TasksAdapter <.. Task
+    MainActivity <.left. Task
+    MainActivity <.. TasksAdapter
+    TasksAdapter <.. Project
+    MainActivity <.. Project
+}
+
+
+
+
+
+
+
+class MainActivity {
+    - allProjects : Project[]
+    - tasks : ArrayList<Task>
+    - adapter : TasksAdapter
+    - sortMethod : SortMethod
+    + dialog : AlertDialog
+    - dialogEditText : EditText
+    - dialogSpinner : Spinner
+    - listTasks : RecyclerView
+    - lblNoTasks : TextView
+    + onCreate( savedInstanceState : Bundle ) : void
+    + onCreateOptionsMenu( menu : Menu ) : boolean
+    + onOptionsItemSelected( item : MenuItem ) : boolean
+    + onDeleteTask( task : Task ) : void
+    - onPositiveButtonClick( dialogInterface : DialogInterface ) : void
+    - showAddTaskDialog() : void
+    - addTask( task : Task ) : void
+    - updateTasks() : void
+    - getAddTaskDialog() : AlertDialog
+    - populateDialogSpinner() : void
+}
+
+enum SortMethod {
+            ALPHABETICAL,
+            ALPHABETICAL_INVERTED,
+            RECENT_FIRST,
+            OLD_FIRST,
+            NONE
+        }
+
+class Task {
+    - id : long
+    - projectId : long
+    - name : String
+    - creationTimesStamp : long
+    + Task( id : long, projectId : long, name : String, creationTimesStamp : long )
+    + getId() : long
+    + setId( id : long ) : void
+    + setProjectId( projectId : long ) : void
+    + getProject() : Project
+    + getName() : String
+    + setName( name : String ) : void
+    + setCreationTimestamp( creationTimestamp : long ) : void
+
+}
+
+class TaskAZComparator <implements Comparator<Task>>{
+    + {static} compare( left : Task, right : Task ) : int
+}
+
+class TaskZAComparator <implements Comparator<Task>>{
+    + {static} compare( left : Task, right : Task ) : int
+}
+
+class TaskRecentComparator <implements Comparator<Task>>{
+    + {static} compare( left : Task, right : Task ) : int
+}
+
+class TaskOldComparator <implements Comparator<Task>>{
+    + {static} compare( left : Task, right : Task ) : int
+}
+
+class TasksAdapter <extends RecyclerView.Adapter<TasksAdapter.TaskViewHolder>>{
+   - tasks : List<Task>
+   - deleteTaskListener : DeleteTaskListener
+   TasksAdapter( tasks : List<Task>, deleteTaskListener : DeleteTaskListener )
+   updateTasks( tasks : List<Task> ) : void
+   + onCreateViewHolder( viewGroup : ViewGroup, viewType : int ) : TaskViewHolder
+   + onBindViewHolder( taskViewHolder : TaskViewHolder, position : int ) : void
+   + getItemCount() : int
+
+}
+
+interface DeleteTaskListener {
+   + onDeleteTask(task : Task) : void
+}
+
+class TaskViewHolder <extends RecyclerView.ViewHolder> {
+    - imgProject : AppCompatImageView
+    - lblTaskName : TextView
+    - lblProjectName : TextView
+    - imgDelete : AppCompatImageView
+    - deleteTaskListener : DeleteTaskListener
+    - TaskViewHolder( itemView : View, deleteTaskListener : DeleteTaskListener )
+    - bind( task : Task) : void
+}
+
+class Project {
+    - id : long
+    - name : String
+    - color : int
+    - Project( id : long, name : String, color : int)
+    + {static} getAllProjects() : Project[]
+    + {static} getProjectById( id : long ) : Project
+    + getId() : long
+    + getName() : String
+    + getColor() : int
+    + toString() : String
+}
+
+
+@enduml
