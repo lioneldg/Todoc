@@ -91,7 +91,7 @@ class TasksAdapter <extends RecyclerView.Adapter<TasksAdapter.TaskViewHolder>>{
    - tasks : List<Task>
    - deleteTaskListener : DeleteTaskListener
    TasksAdapter( tasks : List<Task>, deleteTaskListener : DeleteTaskListener )
-   updateTasks( tasks : List<Task> ) : void
+   + updateTasks( tasks : List<Task> ) : void
    + onCreateViewHolder( viewGroup : ViewGroup, viewType : int ) : TaskViewHolder
    + onBindViewHolder( taskViewHolder : TaskViewHolder, position : int ) : void
    + getItemCount() : int
