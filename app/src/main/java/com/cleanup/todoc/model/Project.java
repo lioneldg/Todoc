@@ -3,8 +3,8 @@ package com.cleanup.todoc.model;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 /**
@@ -12,26 +12,25 @@ import androidx.room.PrimaryKey;
  *
  * @author Gaëtan HERFRAY
  */
+
 @Entity
 public class Project {
     /**
      * The unique identifier of the project
      */
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     private final long id;
 
     /**
      * The name of the project
      */
     @NonNull
-    @ColumnInfo(name="name")
     private final String name;
 
     /**
      * The hex (ARGB) code of the color associated to the project
      */
     @ColorInt
-    @ColumnInfo(name="color")
     private final int color;
 
     /**
