@@ -1,9 +1,11 @@
-package com.cleanup.todoc.model;
+package com.cleanup.todoc.viewmodel;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.cleanup.todoc.model.Project;
+import com.cleanup.todoc.model.Task;
 import com.cleanup.todoc.repositories.ProjectDataRepository;
 import com.cleanup.todoc.repositories.TaskDataRepository;
 
