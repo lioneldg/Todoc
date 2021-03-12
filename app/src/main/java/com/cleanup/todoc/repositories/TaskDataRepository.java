@@ -24,15 +24,6 @@ public class TaskDataRepository {
         return this.taskDao.getAllTasks();
     }
 
-    public LiveData<List<Task>> getTasks(long projectId){
-        return this.taskDao.tasksByProjectId(projectId);
-    }
-
-    // UPDATE
-    public void updateTask(Task task){
-        taskDao.updateTasks(task);
-    }
-
     // DELETE
     public void deleteTask(Task task){
         taskDao.deleteTasks(task);

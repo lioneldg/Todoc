@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     /**
      * List of all projects available in the application
      */
-    private List<Project> allProjects = new ArrayList<>(); //= Project.getAllProjects();
+    private final List<Project> allProjects = new ArrayList<>(); //= Project.getAllProjects();
 
     /**
      * List of all current tasks of the application
@@ -81,17 +81,11 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     /**
      * The RecyclerView which displays the list of tasks
      */
-    // Suppress warning is safe because variable is initialized in onCreate
-    @SuppressWarnings("NullableProblems")
-    @NonNull
     private RecyclerView listTasks;
 
     /**
      * The TextView displaying the empty state
      */
-    // Suppress warning is safe because variable is initialized in onCreate
-    @SuppressWarnings("NullableProblems")
-    @NonNull
     private TextView lblNoTasks;
 
     private TaskViewModel taskViewModel;
@@ -110,13 +104,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         this.getAllTasks();
         this.configureRVTasks();
 
-
-        findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showAddTaskDialog();
-            }
-        });
+        findViewById(R.id.fab_add_task).setOnClickListener(view -> showAddTaskDialog());
     }
 
     @Override
@@ -146,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
     @Override
     public void onDeleteTask(Task task) {
-        boolean res = tasks.remove(task);
+        tasks.remove(task);
         this.taskViewModel.deleteTask(task);
         updateTasks();
     }
@@ -176,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             else if (taskProject != null) {
                 // TODO: Replace this by id of persisted task//§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
                 long id = (long) (Math.random() * 50000);
-
 
                 Task task = new Task(
                         id,
@@ -269,32 +256,19 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         alertBuilder.setTitle(R.string.add_task);
         alertBuilder.setView(R.layout.dialog_add_task);
         alertBuilder.setPositiveButton(R.string.add, null);
-        alertBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                dialogEditText = null;
-                dialogSpinner = null;
-                dialog = null;
-            }
+        alertBuilder.setOnDismissListener(dialogInterface -> {
+            dialogEditText = null;
+            dialogSpinner = null;
+            dialog = null;
         });
 
         dialog = alertBuilder.create();
 
         // This instead of listener to positive button in order to avoid automatic dismiss
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+        dialog.setOnShowListener(dialogInterface -> {
 
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-
-                Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-                        onPositiveButtonClick(dialog);
-                    }
-                });
-            }
+            Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view -> onPositiveButtonClick(dialog));
         });
 
         return dialog;
@@ -326,11 +300,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     // Get all task for all projects
     private void getAllTasks(){
         this.taskViewModel.getAllTasks().observe(this, this::updateTasksList);
-    }
-
-    // Get all task for a project
-    private void getTasks(int projectId){
-        this.taskViewModel.getTasks(projectId).observe(this, this::updateTasksList);
     }
 
     private void updateProjectsList(List<Project> projects) {
