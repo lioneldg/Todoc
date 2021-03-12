@@ -26,7 +26,7 @@ package "app.java.com.cleanup.todoc.ui"{
 
 
 class MainActivity {
-    - allProjects : Project[]
+    - allProjects : List<Project>
     - tasks : ArrayList<Task>
     - adapter : TasksAdapter
     - sortMethod : SortMethod
@@ -35,16 +35,23 @@ class MainActivity {
     - dialogSpinner : Spinner
     - listTasks : RecyclerView
     - lblNoTasks : TextView
+    - taskViewModel : TaskViewModel
     + onCreate( savedInstanceState : Bundle ) : void
     + onCreateOptionsMenu( menu : Menu ) : boolean
     + onOptionsItemSelected( item : MenuItem ) : boolean
     + onDeleteTask( task : Task ) : void
     - onPositiveButtonClick( dialogInterface : DialogInterface ) : void
+    - configureRVTasks() : void
     - showAddTaskDialog() : void
     - addTask( task : Task ) : void
     - updateTasks() : void
     - getAddTaskDialog() : AlertDialog
     - populateDialogSpinner() : void
+    - configureViewModel() : void
+    - getAllProjects() : void
+    - getAllTasks() : void
+    - updateProjectsList(projects : List<Project>) : void
+    - updateTasksList(tasks : List<Task>) : void
 }
 
 enum SortMethod {
@@ -55,6 +62,19 @@ enum SortMethod {
             NONE
         }
 
+class Project {
+    - id : long
+    - name : String
+    - color : int
+    - Project( id : long, name : String, color : int)
+    + {static} getAllProjects() : Project[]
+    + {static} getProjectById( id : long ) : Project
+    + getId() : long
+    + getName() : String
+    + getColor() : int
+    + toString() : String
+}
+
 class Task {
     - id : long
     - projectId : long
@@ -63,12 +83,13 @@ class Task {
     + Task( id : long, projectId : long, name : String, creationTimesStamp : long )
     + getId() : long
     + setId( id : long ) : void
+    + getProjectId() : long
     + setProjectId( projectId : long ) : void
     + getProject() : Project
     + getName() : String
     + setName( name : String ) : void
     + setCreationTimestamp( creationTimestamp : long ) : void
-
+    + getCreationTimestamp() : long
 }
 
 class TaskAZComparator <implements Comparator<Task>>{
@@ -111,19 +132,5 @@ class TaskViewHolder <extends RecyclerView.ViewHolder> {
     - TaskViewHolder( itemView : View, deleteTaskListener : DeleteTaskListener )
     - bind( task : Task) : void
 }
-
-class Project {
-    - id : long
-    - name : String
-    - color : int
-    - Project( id : long, name : String, color : int)
-    + {static} getAllProjects() : Project[]
-    + {static} getProjectById( id : long ) : Project
-    + getId() : long
-    + getName() : String
-    + getColor() : int
-    + toString() : String
-}
-
 
 @enduml
