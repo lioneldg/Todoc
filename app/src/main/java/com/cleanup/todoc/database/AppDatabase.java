@@ -57,9 +57,9 @@ public abstract class AppDatabase extends RoomDatabase {
                 cv3.put("name", "Projet Circus");
                 cv3.put("color", 0xFFA3CED2);
 
-                db.insert("Project", OnConflictStrategy.IGNORE, cv1);
-                db.insert("Project", OnConflictStrategy.IGNORE, cv2);
-                db.insert("Project", OnConflictStrategy.IGNORE, cv3);
+                db.insert("Project", OnConflictStrategy.REPLACE, cv1);
+                db.insert("Project", OnConflictStrategy.REPLACE, cv2);
+                db.insert("Project", OnConflictStrategy.REPLACE, cv3);
             }
         };
     }

@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +32,7 @@ import com.cleanup.todoc.model.TaskViewModel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>Home activity of the application which is displayed when the user opens the app.</p>
@@ -41,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     /**
      * List of all projects available in the application
      */
-    private final Project[] allProjects = Project.getAllProjects();
+    private List<Project> allProjects = new ArrayList<>(); //= Project.getAllProjects();
 
     /**
      * List of all current tasks of the application
@@ -94,8 +97,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     @NonNull
     private TextView lblNoTasks;
 
-    private TaskViewModel taskViewModel;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    private static int PROJECT_ID = 1;
+    private TaskViewModel taskViewModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,8 +108,11 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         listTasks = findViewById(R.id.list_tasks);
         lblNoTasks = findViewById(R.id.lbl_no_task);
 
-        listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        listTasks.setAdapter(adapter);
+        this.configureViewModel();
+        this.getAllProjects();
+        this.getAllTasks();
+        this.configureRVTasks();
+
 
         findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,14 +120,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 showAddTaskDialog();
             }
         });
-
-        //appDatabase = AppDatabase.getInstance(this);
-
-        //tasks.addAll(appDatabase.taskDao().getAllTasks());
-        //updateTasks();
-        this.configureViewModel();//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        this.getCurrentProject(PROJECT_ID);//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        this.getTasks(PROJECT_ID);//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
     @Override
@@ -152,9 +149,9 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
     @Override
     public void onDeleteTask(Task task) {
-        tasks.remove(task);
+        boolean res = tasks.remove(task);
+        this.taskViewModel.deleteTask(task);
         updateTasks();
-        this.taskViewModel.deleteTask(task);//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
     /**
@@ -190,9 +187,8 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                         taskName,
                         new Date().getTime()
                 );
-                addTask(task);
-                //appDatabase.taskDao().addTasks(task);
-                this.taskViewModel.createTask(task);//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                this.addTask(task);
+                this.taskViewModel.createTask(task);
                 dialogInterface.dismiss();
             }
             // If name has been set, but project has not been set (this should never occur)
@@ -204,6 +200,11 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         else {
             dialogInterface.dismiss();
         }
+    }
+
+    private void configureRVTasks() {
+        listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        listTasks.setAdapter(adapter);
     }
 
     /**
@@ -313,27 +314,38 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         }
     }
 
-    // Configuring ViewModel!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // Configuring ViewModel
     private void configureViewModel(){
         ViewModelFactory mViewModelFactory = Injection.provideViewModelFactory(this);
-        this.taskViewModel = ViewModelProviders.of(this, mViewModelFactory).get(TaskViewModel.class);
-        this.taskViewModel.init(PROJECT_ID);
+        this.taskViewModel = new ViewModelProvider(this, mViewModelFactory).get(TaskViewModel.class);
+        this.taskViewModel.init();
     }
 
-    // Get Current Project
-    private void getCurrentProject(int projectId){
-        this.taskViewModel.getProject(projectId);//.observe(this, this::updateHeader);
+    // Get all Projects
+    private void getAllProjects(){
+        this.taskViewModel.getAllProjects().observe(this, this::updateProjectsList);
     }
 
-    // Get all task for a user
+    // Get all task for all projects
+    private void getAllTasks(){
+        this.taskViewModel.getAllTasks().observe(this, this::updateTasksList);
+    }
+
+    // Get all task for a project
     private void getTasks(int projectId){
-        this.taskViewModel.getTasks(projectId);//.observe(this, this::updateTasksList);
+        this.taskViewModel.getTasks(projectId).observe(this, this::updateTasksList);
     }
 
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    /*private void updateTask(Task task){
-        this.taskViewModel.updateTask(task);
-    }*/
+    private void updateProjectsList(List<Project> projects) {
+        this.allProjects.clear();
+        this.allProjects.addAll(projects);
+    }
+
+    private void updateTasksList(List<Task> tasks) {
+        this.tasks.clear();
+        this.tasks.addAll(tasks);
+        updateTasks();
+    }
 
     /**
      * List of all possible sort methods for task

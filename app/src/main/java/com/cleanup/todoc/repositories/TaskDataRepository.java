@@ -20,6 +20,10 @@ public class TaskDataRepository {
     }
 
     // READ
+    public LiveData<List<Task>> getAllTasks(){
+        return this.taskDao.getAllTasks();
+    }
+
     public LiveData<List<Task>> getTasks(long projectId){
         return this.taskDao.tasksByProjectId(projectId);
     }
