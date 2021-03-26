@@ -1,29 +1,54 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-package "app.java.com.cleanup.todoc.model"{
-    Task *- TaskAZComparator
-    Task *-- TaskZAComparator
-    Task *-- TaskRecentComparator
-    Task *-- TaskOldComparator
-    Task <.up. Project
-}
-package "app.java.com.cleanup.todoc.ui"{
-    MainActivity *-- SortMethod
-    TasksAdapter *-- DeleteTaskListener
-    TasksAdapter *-- TaskViewHolder
-    TasksAdapter <.. Task
-    MainActivity <.left. Task
-    MainActivity <.. TasksAdapter
-    TasksAdapter <.. Project
-    MainActivity <.. Project
+package app.java.com.cleanup.todoc.database {
+    AppDatabase --> TaskDao
+    AppDatabase --> ProjectDao
 }
 
+package app.java.com.cleanup.todoc.model {
+    Project <-up- ProjectDao
+    Task <-up- TaskDao
+    Task -* TaskAZComparator
+    Task --* TaskZAComparator
+    Task --* TaskRecentComparator
+    Task --* TaskOldComparator
+    Task -up-> Project
+}
 
+package app.java.com.cleanup.todoc.repository {
+    ProjectDataRepository --> ProjectDao
+    TaskDataRepository --> TaskDao
+}
 
+package app.java.com.cleanup.todoc.ui {
+    TasksAdapter --> Task
+    TasksAdapter -right-* DeleteTaskListener
+    TasksAdapter ..> TaskViewHolder
+    TasksAdapter --* TaskViewHolder
+    TaskViewHolder -up-> DeleteTaskListener
+    MainActivity ..> TasksAdapter
+    MainActivity -right-* SortMethod
+    MainActivity .left.> Task
+    MainActivity --> Project
+}
 
-
-
+package "app.java.com.cleanup.todoc.viewmodel"{
+    TaskViewModel -> TaskDataRepository
+    TaskViewModel -> ProjectDataRepository
+    ViewModelFactory ..> TaskViewModel
+    ViewModelFactory -> TaskDataRepository
+    ViewModelFactory -> ProjectDataRepository
+    Injection --> AppDatabase
+    Injection .> TaskDataRepository
+    Injection .> ProjectDataRepository
+    Injection -> TaskDataRepository
+    Injection -> ProjectDataRepository
+    Injection ..> ViewModelFactory
+    TaskViewModel <.. MainActivity
+    ViewModelFactory <-- MainActivity
+    Injection <-- MainActivity
+}
 
 class MainActivity {
     - allProjects : List<Project>
@@ -80,7 +105,7 @@ class Task {
     - projectId : long
     - name : String
     - creationTimesStamp : long
-    + Task( id : long, projectId : long, name : String, creationTimesStamp : long )
+    + Task( projectId : long, name : String, creationTimesStamp : long )
     + getId() : long
     + setId( id : long ) : void
     + getProjectId() : long
@@ -133,4 +158,70 @@ class TaskViewHolder <extends RecyclerView.ViewHolder> {
     - bind( task : Task) : void
 }
 
+class TaskDataRepository {
+    - taskDao : TaskDao
+    + TaskDataRepository(taskDao : TaskDao)
+    + createTask( task : Task ) : void
+    + getAllTasks() : LiveData<List<Task>>
+    + deleteTask( task : Task ) : void
+}
+
+class ProjectDataRepository {
+    - projectDao : ProjectDao
+    + ProjectDataRepository( projectDao : ProjectDao )
+    + getAllProjects() : LiveData<List<Project>>
+}
+
+interface TaskDao {
+    + addTasks( tasks : Task... ) : void
+    + getAllTasks() : LiveData<List<Task>>
+    + deleteTasks( tasks : Task... ) : void
+}
+
+interface ProjectDao {
+    + getAllProjects() : LiveData<List<Project>>
+}
+
+class ViewModelFactory <implements ViewModelProvider.Factory> {
+    - taskDataRepository : TaskDataRepository
+    - projectDataRepository : ProjectDataRepository
+    - executor : Executor
+    + ViewModelFactory( taskDataRepository : TaskDataRepository, projectDataRepository : ProjectDataRepository, executor : Executor)
+    + create( modelClass : Class<T> ) : <T extends ViewModel> T
+}
+
+abstract class AppDatabase <extends RoomDatabase> {
+    - {static volatile} INSTANCE : AppDatabase
+    + abstract taskDao() : TaskDao
+    + abstract projectDao() : ProjectDao
+    + {static} getInstance(Context context) : AppDatabase
+    - {static} prepopulateDatabase() : Callback
+}
+
+class TaskViewModel <extends ViewModel> {
+    - taskDataSource : TaskDataRepository
+    - projectDataSource : ProjectDataRepository
+    - executor : Executor
+    - allProjects : LiveData<List<Project>>
+    - allTasks : LiveData<List<Task>>
+    + TaskViewModel( taskDataSource : TaskDataRepository, projectDataSource : ProjectDataRepository, executor : Executor)
+    + init() : void
+    + getAllProjects() : LiveData<List<Project>>
+    + getAllTasks() : LiveData<List<Task>>
+    + createTask( task : Task ) : void
+    + deleteTask( task : Task) : void
+}
+
+class Injection {
+    + {static} provideTaskDataSource( context : Context ) : TaskDataRepository
+    + {static} provideProjectDataSource( context : Context ) : ProjectDataRepository
+    + {static} provideExecutor() : Executor
+    + {static} provideViewModelFactory( context : Context ) : ViewModelFactory
+}
+
+'class AppDatabase_impl {}
+
+'class ProjectDao_impl {}
+
+'class TaskDao_impl {}
 @enduml
