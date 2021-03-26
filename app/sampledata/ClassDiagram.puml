@@ -173,9 +173,9 @@ class ProjectDataRepository {
 }
 
 interface TaskDao {
-    + addTasks( tasks : Task... ) : void
+    + addTask( task : Task ) : long
     + getAllTasks() : LiveData<List<Task>>
-    + deleteTasks( tasks : Task... ) : void
+    + deleteTask( id : long ) : void
 }
 
 interface ProjectDao {
@@ -219,9 +219,4 @@ class Injection {
     + {static} provideViewModelFactory( context : Context ) : ViewModelFactory
 }
 
-'class AppDatabase_impl {}
-
-'class ProjectDao_impl {}
-
-'class TaskDao_impl {}
 @enduml

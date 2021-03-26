@@ -16,12 +16,15 @@ public interface TaskDao {
 
     // CREATE
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void addTasks(Task... tasks);
+    long addTask(Task task);
 
     @Query("SELECT * FROM task")
     LiveData<List<Task>> getAllTasks();
 
     // DELETE
-    @Delete
-    void deleteTasks(Task... tasks);
+    @Query("DELETE FROM task WHERE task.id=:id")
+    void deleteTask(long id);
+
+    @Query("DELETE FROM task")
+    void deleteAll();
 }

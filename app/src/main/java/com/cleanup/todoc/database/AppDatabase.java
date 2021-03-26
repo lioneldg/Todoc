@@ -35,7 +35,8 @@ public abstract class AppDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
-    private static Callback prepopulateDatabase(){
+    //is public to use it in TaskDaoTest
+    public static Callback prepopulateDatabase(){
         return new Callback() {
 
             @Override

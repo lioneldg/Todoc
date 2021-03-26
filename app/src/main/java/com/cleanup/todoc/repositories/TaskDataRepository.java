@@ -16,7 +16,7 @@ public class TaskDataRepository {
 
     // CREATE
     public void createTask(Task task){
-        taskDao.addTasks(task);
+        taskDao.addTask(task);
     }
 
     // READ
@@ -26,7 +26,7 @@ public class TaskDataRepository {
 
     // DELETE
     public void deleteTask(Task task){
-        taskDao.deleteTasks(task);
+        taskDao.deleteTask(task.getId());
     }
 
 
