@@ -9,6 +9,7 @@ import com.cleanup.todoc.database.AppDatabase;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,4 +59,5 @@ public class TaskDaoTest {
         this.database.taskDao().deleteTask(id);
         assertTrue(LiveDataTestUtils.getValue(this.database.taskDao().getAllTasks()).size() == 0);
     }
+
 }
